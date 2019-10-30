@@ -1,70 +1,64 @@
-import React, { Component } from 'react';
-import axios from 'axios';
-import UserCard from './components/userCard';
-import AddUserForm from './components/addUserForm';
+import React from 'react';
+import 'semantic-ui-css/semantic.min.css';
 
-class App extends Component{
-  constructor(){
+import './App.css';
+import UserCard from './components/UserCard';
+import CardList from './components/CardList';
+
+class App extends React.Component {
+  constructor() {
     super()
-    this.state = {
-        username: 'cireimu',
-        usersList: []
+    this.state ={
+      MyData: [],
+      MyFollowers: []
     }
   }
 
-  componentDidMount(){
-    this.fetchUsers()
-
-  }
-
-  componentDidUpdate(prevProps, prevState){
-    if (prevState.username !== this.state.username){
-      console.log(this.state.usersList)
-      this.fetchUsers()
-    }
-  }
-
-
-  fetchUsers = (user = `${this.state.username}`) => {
-    axios.get(`https://api.github.com/users/${user}`)
-    .then(resp=>{
-      console.log(resp)
-      this.setState({
-      usersList: [...this.state.usersList, resp.data]
-      })
-    })
-    .catch(err =>{
-      console.log('error: ', err)
-    })
-
-  }
-
-  addUser = (event, user) => {
-    const newUser = user
-    this.setState({
-      username: newUser
-    })
-  }
-
- 
-
-  render(){
-    return (
-      <div className="App">
-        <h1> GitHub User Cards </h1>
-        <AddUserForm addUser={this.addUser}/>
-        <div className="users">
-          {this.state.usersList.map((item, index)=>{
-            return(
-              <div className="user-card" key={index}>
-                <UserCard detail ={item} />
-              </div>
-              )
-          })}
-        </div>
-      </div>
-    );
-  }
+componentDidMount() {
+  this.FetchMyData();
+  this.FetchMyFollowers();
 }
+
+FetchMyData = () => {
+  fetch('https://api.github.com/users/cireimu')
+  .then(res => {
+    return res.json()
+  })
+  .then(data => {
+    return this.setState({MyData: data})    
+  })
+  .catch(err => console.log(err))
+}
+
+FetchMyFollowers = () => {
+  fetch('https://api.github.com/users/cireimu/followers')
+  .then(res => {
+    return res.json()
+  })
+  .then(data => {
+    return this.setState({MyFollowers: data})    
+  })
+  .catch(err => console.log(err))
+}
+
+render() {
+  // console.log(this.state.MyData)
+  return (
+    <div className='App'>
+      <h1>GitHub User Card</h1>
+      <UserCard MyData = {this.state.MyData} />
+      <CardList MyFollowers = {this.state.MyFollowers} />
+      {/* {console.log(this.state.MyData)} */}
+
+      {/* {console.log(this.state.MyFollowers)} */}
+      {/* <UserCard MyData={this.state.MyData} /> */}
+    </div>
+  )
+}
+
+}
+
+
+
 
 export default App;
